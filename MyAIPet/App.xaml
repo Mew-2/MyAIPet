@@ -1,0 +1,11 @@
+<prism:PrismApplication
+    x:Class="MyAIPet.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:MyAIPet"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:converters="clr-namespace:MyAIPet.Converters">
+    <prism:PrismApplication.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </prism:PrismApplication.Resources>
+</prism:PrismApplication>

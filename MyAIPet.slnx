@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Services/">
+    <Project Path="MyAIPet.Services.Interfaces/MyAIPet.Services.Interfaces.csproj" Id="d05ce692-8f5c-4269-a52e-54bf6d7be5c5" />
+    <Project Path="MyAIPet.Services/MyAIPet.Services.csproj" Id="adab1a4c-1b26-469a-a9ea-e755ca8a51b5" />
+  </Folder>
+  <Project Path="MyAIPet.Core/MyAIPet.Core.csproj" Id="9f7852cc-f114-4698-a745-216735a33a39" />
+  <Project Path="MyAIPet/MyAIPet.csproj" />
+</Solution>
