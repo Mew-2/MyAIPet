@@ -34,75 +34,12 @@ namespace MyAIPet
 
             containerRegistry.RegisterSingleton<IMemoryService, MemoryService>();
 
-            var apiKey = GetApiKey();
-            if (!string.IsNullOrEmpty(apiKey))
-            {
-                var memoryService = Container.Resolve<IMemoryService>();
-                var chatService = new KimiChatService(apiKey, memoryService);
-                chatService.SetPersonalityPrompt(GetPersonalityPrompt());
-                containerRegistry.RegisterSingleton<IChatService>(() => chatService);
-                Log.Information("已使用Kimi API配置对话服务");
-            }
-            else
-            {
-                Log.Error("未配置Kimi API Key，请检查配置文件");
-            }
+            var chatService = new BackendChatService("http://localhost:8000");
+            containerRegistry.RegisterSingleton<IChatService>(() => chatService);
+            Log.Information("已配置后端聊天服务 (http://localhost:8000)");
 
             containerRegistry.Register<MainWindowViewModel>();
             containerRegistry.Register<ChatBubbleViewModel>();
-        }
-
-        private string GetApiKey()
-        {
-            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.txt");
-            if (File.Exists(configPath))
-            {
-                var lines = File.ReadAllLines(configPath);
-                foreach (var line in lines)
-                {
-                    if (line.StartsWith("KIMI_API_KEY="))
-                    {
-                        return line.Substring("KIMI_API_KEY=".Length).Trim();
-                    }
-                }
-            }
-            return Environment.GetEnvironmentVariable("KIMI_API_KEY") ?? string.Empty;
-        }
-
-        private string GetPersonalityPrompt()
-        {
-            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.txt");
-            if (File.Exists(configPath))
-            {
-                var lines = File.ReadAllLines(configPath);
-                var personalityBuilder = new System.Text.StringBuilder();
-                var inPersonality = false;
-
-                foreach (var line in lines)
-                {
-                    var trimmed = line.Trim();
-
-                    if (trimmed.StartsWith("PERSONALITY="))
-                    {
-                        inPersonality = true;
-                        var value = trimmed.Substring("PERSONALITY=".Length).Trim();
-                        if (!string.IsNullOrEmpty(value) && !value.StartsWith("#"))
-                        {
-                            personalityBuilder.Append(value);
-                        }
-                    }
-                    else if (inPersonality && !trimmed.StartsWith("#") && !string.IsNullOrEmpty(trimmed))
-                    {
-                        personalityBuilder.Append("\n").Append(trimmed);
-                    }
-                }
-
-                if (personalityBuilder.Length > 0)
-                {
-                    return personalityBuilder.ToString();
-                }
-            }
-            return DefaultPersonality;
         }
     }
 }

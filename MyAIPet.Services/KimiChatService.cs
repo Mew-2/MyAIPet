@@ -11,14 +11,16 @@ using MyAIPet.Services.Interfaces;
 
 namespace MyAIPet.Services;
 
-public class KimiChatService : IChatService
-{
-    private readonly HttpClient _httpClient;
-    private readonly List<ChatMessage> _messageHistory = new();
-    private readonly IMemoryService? _memoryService;
-    private string _personalityPrompt = string.Empty;
-    private const string BaseUrl = "https://api.moonshot.cn/v1/";
-    private const string DefaultModel = "kimi-k2.5";
+    public class KimiChatService : IChatService
+    {
+        private readonly HttpClient _httpClient;
+        private readonly List<ChatMessage> _messageHistory = new();
+        private readonly IMemoryService? _memoryService;
+        private string _personalityPrompt = string.Empty;
+        private const string BaseUrl = "https://api.moonshot.cn/v1/";
+        private const string DefaultModel = "kimi-k2.5";
+
+        public event Action<string, int>? OnEmotionChanged { add { } remove { } }
 
     private readonly JsonSerializerOptions _jsonOptions = new()
     {

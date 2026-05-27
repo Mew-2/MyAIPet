@@ -17,7 +17,11 @@
     MouseLeftButtonDown="Window_MouseLeftButtonDown"
     LocationChanged="Window_LocationChanged"
     mc:Ignorable="d">
-    
+    <!--
+    TODO: 情绪立绘切换
+    CurrentEmotion 已绑定到 ViewModel，有素材后做 Binding
+    emotion: happy / sad / angry / normal
+    -->
     <Window.ContextMenu>
         <ContextMenu>
             <MenuItem Header="对话" Command="{Binding ToggleBubbleCommand}"/>

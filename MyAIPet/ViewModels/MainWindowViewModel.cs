@@ -16,7 +16,6 @@ namespace MyAIPet.ViewModels
     {
         private readonly IAnimationService? _animationService;
         private readonly IChatService? _chatService;
-        private readonly IMemoryService? _memoryService;
         private const double ScaleRatio = 0.3;
         private double _direction = -1;
         private BitmapSource? _currentFrame;
@@ -29,8 +28,29 @@ namespace MyAIPet.ViewModels
         private int _currentSentenceIndex;
         private bool _isWaitingForNext;
         private CancellationTokenSource? _chatCts;
+        private string _currentEmotion = "normal";
 
         public double ScaleX => ScaleRatio * _direction;
+
+        public string CurrentEmotion
+        {
+            get => _currentEmotion;
+            set => SetProperty(ref _currentEmotion, value);
+        }
+
+        // TODO: 情绪驱动立绘切换
+        private void OnEmotionChanged(string emotion, int affection)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                CurrentEmotion = emotion;
+                // TODO: 有情绪立绘素材后，根据 emotion 切换宠物表情
+                // happy → 开心表情/动作
+                // sad  → 低落表情
+                // angry → 生气表情
+                // normal → 默认表情
+            });
+        }
 
         public BitmapSource? CurrentFrame
         {
@@ -76,13 +96,14 @@ namespace MyAIPet.ViewModels
         {
             _animationService = animationService;
             _chatService = chatService;
-            _memoryService = memoryService;
             _chatBubble = chatBubble;
 
             SendMessageCommand = new DelegateCommand(async () => await SendMessageAsync(), () => IsInputEnabled)
                 .ObservesProperty(() => IsInputEnabled);
             BubbleClickCommand = new DelegateCommand(OnBubbleClick);
             ToggleBubbleCommand = new DelegateCommand(OnToggleBubble);
+
+            _chatService.OnEmotionChanged += OnEmotionChanged;
 
             _animationService.OnFrameChanged += OnFrameChanged;
             StartIdleLoop();
@@ -125,16 +146,6 @@ namespace MyAIPet.ViewModels
 
             var userMessage = InputText.Trim();
 
-            if (_memoryService?.ShouldRemember(userMessage) == true)
-            {
-                var memoryEntry = _memoryService.ExtractFromText(userMessage);
-                if (memoryEntry != null)
-                {
-                    _memoryService.AddMemory(memoryEntry);
-                    _chatService.ClearHistory();
-                }
-            }
-
             InputText = string.Empty;
             IsInputEnabled = false;
             IsInputVisible = false;
@@ -156,9 +167,8 @@ namespace MyAIPet.ViewModels
             catch (Exception ex)
             {
                 Log.Error(ex, "发送消息失败");
-                IsInputEnabled = true;
-                IsChatting = false;
-                ChatBubble?.Hide();
+                ChatBubble?.ShowTextAsync("希格雯的连接断开了，主人检查一下后端有没有启动哦~",
+                    OnTypingComplete, OnDisplayTimeout);
             }
         }
 
@@ -246,6 +256,10 @@ namespace MyAIPet.ViewModels
         {
             StopIdleLoop();
             _animationService.OnFrameChanged -= OnFrameChanged;
+            if (_chatService != null)
+            {
+                _chatService.OnEmotionChanged -= OnEmotionChanged;
+            }
             ChatBubble?.Destroy();
             _chatCts?.Cancel();
             _chatCts?.Dispose();

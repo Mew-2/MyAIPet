@@ -11,6 +11,9 @@ public interface IChatService
     Task<List<string>> SendMessageWithHistoryAsync(string userMessage, CancellationToken cancellationToken = default);
     void SetPersonalityPrompt(string prompt);
     void ClearHistory();
+
+    // TODO: 情绪驱动立绘切换
+    event Action<string, int>? OnEmotionChanged;  // (emotion, affection)
 }
 
 public class ChatMessage
